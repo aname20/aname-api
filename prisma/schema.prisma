@@ -1,0 +1,281 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String      @id @default(uuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  password  String
+  role      UserRole
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  medicationLogs MedicationLog[]
+  
+  caregiverDependents DependentCaregiver[]
+  familyDependents    DependentFamily[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  CAREGIVER
+  FAMILY
+}
+
+model Dependent {
+  id                String                @id @default(uuid())
+  name              String
+  age               Int
+  susCode           String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  caregivers        DependentCaregiver[]
+  familyMembers     DependentFamily[]
+  conditions        DependentCondition[]
+  allergies         DependentAllergy[]
+  emergencyContacts EmergencyContact[]
+  prescriptions     Prescription[]
+  events            Event[]
+  documents         Document[]
+
+  @@map("dependents")
+}
+
+model DependentCaregiver {
+  caregiverId  String
+  dependentId  String
+  
+  createdAt DateTime @default(now())
+
+  caregiver User      @relation(fields: [caregiverId], references: [id])
+  dependent Dependent @relation(fields: [dependentId], references: [id])
+
+  @@id([caregiverId, dependentId])
+  @@map("dependent_caregivers")
+}
+
+model DependentFamily {
+  familyId     String
+  dependentId  String
+  
+  createdAt DateTime @default(now())
+
+  family    User      @relation(fields: [familyId], references: [id])
+  dependent Dependent @relation(fields: [dependentId], references: [id])
+
+  @@id([familyId, dependentId])
+  @@map("dependent_families")
+}
+
+model HealthCondition {
+  id    Int    @id @default(autoincrement())
+  name  String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dependents DependentCondition[]
+
+  @@map("conditions")
+}
+
+model DependentCondition {
+  dependentId String
+  conditionId Int
+  
+  createdAt DateTime @default(now())
+
+  dependent Dependent @relation(fields: [dependentId], references: [id])
+  condition HealthCondition @relation(fields: [conditionId], references: [id])
+
+  @@id([dependentId, conditionId])
+  @@map("dependent_conditions")
+}
+
+model Allergy {
+  id    Int    @id @default(autoincrement())
+  name  String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dependents DependentAllergy[]
+
+  @@map("allergies")
+}
+
+model DependentAllergy {
+  dependentId String
+  allergyId   Int
+  notes       String?
+  
+  createdAt DateTime @default(now())
+
+  dependent Dependent @relation(fields: [dependentId], references: [id])
+  allergy   Allergy   @relation(fields: [allergyId], references: [id])
+
+  @@id([dependentId, allergyId])
+  @@map("dependent_allergies")
+}
+
+model EmergencyContact {
+  id          Int        @id @default(autoincrement())
+  name        String
+  phone       String
+  kinship String?
+  dependentId String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dependent Dependent @relation(fields: [dependentId], references: [id])
+
+  @@map("emergency_contacts")
+}
+
+model Medication {
+  id          Int   @id @default(autoincrement())
+  name        String
+  description String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  prescriptions Prescription[]
+
+  @@map("medications")
+}
+
+model Prescription {
+  id            Int       @id @default(autoincrement())
+  dependentId   String
+  medicationId  Int
+  dosage        String?
+  doctorName    String?
+  doctorCrm     String?
+  notes         String?
+  startDate     DateTime
+  endDate       DateTime?
+  type          PrescriptionType
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dependent Dependent   @relation(fields: [dependentId], references: [id])
+  medication Medication @relation(fields: [medicationId], references: [id])
+
+  schedules       PrescriptionSchedule[]
+  medicationLogs  MedicationLog[]
+
+  @@map("prescriptions")
+}
+
+enum PrescriptionType {
+  CONTINUOUS
+  INTERMITTENT
+}
+
+model PrescriptionSchedule {
+  id             Int       @id @default(autoincrement())
+  prescriptionId Int
+  time           String 
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  prescription Prescription @relation(fields: [prescriptionId], references: [id])
+
+  @@map("prescription_schedules")
+}
+
+model MedicationLog {
+  id             Int       @id @default(autoincrement())
+  prescriptionId Int
+  caregiverId    String
+  takenAt        DateTime
+  status         MedicationLogStatus
+  notes          String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  prescription Prescription @relation(fields: [prescriptionId], references: [id])
+  caregiver    User         @relation(fields: [caregiverId], references: [id])
+
+  @@map("medication_logs")
+}
+
+enum MedicationLogStatus {
+  TAKEN
+  MISSED
+  REFUSED
+}
+
+model Doctor {
+  id          Int    @id @default(autoincrement())
+  name        String
+  specialty   String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  events      Event[]
+
+  @@map("doctors")
+}
+
+model Event {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String?
+  date         DateTime
+  status       EventStatus @default(SCHEDULED)
+  location     String?
+  dependentId  String
+  doctorId     Int?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dependent Dependent @relation(fields: [dependentId], references: [id])
+  doctor    Doctor?   @relation(fields: [doctorId], references: [id])
+
+  @@map("events")
+}
+
+enum EventStatus {
+  SCHEDULED
+  DONE
+  CANCELED
+}
+
+model Document {
+  id          Int      @id @default(autoincrement())
+  dependentId String
+  type        DocumentType
+  fileUrl     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  dependent Dependent @relation(fields: [dependentId], references: [id])
+
+  @@map("documents")
+}
+
+enum DocumentType {
+  PRESCRIPTION // Receita
+  REPORT // Laudo
+  EXAM
+  OTHER
+}
