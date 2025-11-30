@@ -3,6 +3,7 @@ import { UsersService } from './users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { ConflictException } from '@nestjs/common';
 
 jest.mock('bcrypt', () => ({
   hash: jest.fn().mockResolvedValue('hashedPassword'),
@@ -23,6 +24,7 @@ describe('UsersService', () => {
   let prisma: PrismaService;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
@@ -59,16 +61,38 @@ describe('UsersService', () => {
         updatedAt: new Date(),
       };
 
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
       mockPrismaService.user.create.mockResolvedValue(resultUser);
 
       const result = await service.create(dto);
 
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { email: dto.email },
+      });
       expect(bcrypt.hash).toHaveBeenCalledWith('password123', 10);
       expect(prisma.user.create).toHaveBeenCalledWith({
         data: { ...dto, password: 'hashedPassword' },
       });
       expect(result.id).toEqual('uuid');
       expect(result.email).toEqual(dto.email);
+    });
+
+    it('should throw ConflictException if user already exists', async () => {
+      const dto = {
+        email: 'test@example.com',
+        name: 'Test User',
+        password: 'password123',
+        role: UserRole.FAMILY,
+      };
+
+      mockPrismaService.user.findUnique.mockResolvedValue({ id: 'existing' });
+
+      await expect(service.create(dto)).rejects.toThrow(ConflictException);
+
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { email: dto.email },
+      });
+      expect(prisma.user.create).not.toHaveBeenCalled();
     });
   });
 
