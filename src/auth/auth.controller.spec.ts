@@ -12,6 +12,7 @@ describe('AuthController', () => {
 
   const mockAuthService = {
     signup: jest.fn(),
+    login: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -59,6 +60,35 @@ describe('AuthController', () => {
       const result = await controller.signup(createUserDto);
 
       expect(service.signup).toHaveBeenCalledWith(createUserDto);
+      expect(result).toEqual(expectedResponse);
+      expect(result.user.password).toBeUndefined();
+    });
+  });
+
+  describe('login', () => {
+    it('should call authService.login and return AuthResponseDto', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      const userEntity = new UserEntity({
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: UserRole.FAMILY,
+        phone: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const expectedResponse = new AuthResponseDto('jwt_token', userEntity);
+
+      mockAuthService.login = jest.fn().mockResolvedValue(expectedResponse);
+
+      const result = await controller.login(loginDto);
+
+      expect(service.login).toHaveBeenCalledWith(loginDto);
       expect(result).toEqual(expectedResponse);
       expect(result.user.password).toBeUndefined();
     });

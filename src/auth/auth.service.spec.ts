@@ -13,6 +13,7 @@ describe('AuthService', () => {
 
   const mockUsersService = {
     create: jest.fn(),
+    findByEmail: jest.fn(),
   };
 
   const mockJwtService = {
@@ -300,6 +301,161 @@ describe('AuthService', () => {
 
       expect(usersService.create).toHaveBeenCalledWith(createUserDto);
       expect(result.accessToken).toBeDefined();
+    });
+  });
+
+  describe('login', () => {
+    it('should login successfully with valid credentials', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      const userFromDb = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+        password: 'hashedPassword',
+        role: UserRole.FAMILY,
+        phone: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const userEntity: UserEntity = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: UserRole.FAMILY,
+        phone: null,
+        createdAt: userFromDb.createdAt,
+        updatedAt: userFromDb.updatedAt,
+      };
+
+      mockUsersService.findByEmail = jest.fn().mockResolvedValue(userFromDb);
+      const bcryptCompare = jest.spyOn(require('bcrypt'), 'compare').mockResolvedValue(true);
+      mockJwtService.sign.mockReturnValue('jwt_token');
+
+      const result = await service.login(loginDto);
+
+      expect(usersService.findByEmail).toHaveBeenCalledWith(loginDto.email);
+      expect(bcryptCompare).toHaveBeenCalledWith(loginDto.password, userFromDb.password);
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        email: userEntity.email,
+        sub: userEntity.id,
+        role: userEntity.role,
+      });
+      expect(result.accessToken).toBe('jwt_token');
+      expect(result.user.email).toBe(userEntity.email);
+      expect(result.user).not.toHaveProperty('password');
+
+      bcryptCompare.mockRestore();
+    });
+
+    it('should throw UnauthorizedException if user not found', async () => {
+      const loginDto = {
+        email: 'nonexistent@example.com',
+        password: 'password123',
+      };
+
+      mockUsersService.findByEmail = jest.fn().mockResolvedValue(null);
+
+      await expect(service.login(loginDto)).rejects.toThrow('Invalid credentials');
+
+      expect(usersService.findByEmail).toHaveBeenCalledWith(loginDto.email);
+    });
+
+    it('should throw UnauthorizedException if password is invalid', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'wrongPassword',
+      };
+
+      const userFromDb = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+        password: 'hashedPassword',
+        role: UserRole.FAMILY,
+        phone: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockUsersService.findByEmail = jest.fn().mockResolvedValue(userFromDb);
+      const bcryptCompare = jest.spyOn(require('bcrypt'), 'compare').mockResolvedValue(false);
+
+      await expect(service.login(loginDto)).rejects.toThrow('Invalid credentials');
+
+      expect(usersService.findByEmail).toHaveBeenCalledWith(loginDto.email);
+      expect(bcryptCompare).toHaveBeenCalledWith(loginDto.password, userFromDb.password);
+
+      bcryptCompare.mockRestore();
+    });
+
+    it('should handle login for different user roles', async () => {
+      const roles = [UserRole.CAREGIVER, UserRole.FAMILY];
+
+      for (const role of roles) {
+        const loginDto = {
+          email: `test_${role}@example.com`,
+          password: 'password123',
+        };
+
+        const userFromDb = {
+          id: '1',
+          email: loginDto.email,
+          name: 'Test User',
+          password: 'hashedPassword',
+          role: role,
+          phone: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        mockUsersService.findByEmail = jest.fn().mockResolvedValue(userFromDb);
+        const bcryptCompare = jest.spyOn(require('bcrypt'), 'compare').mockResolvedValue(true);
+        mockJwtService.sign.mockReturnValue('token');
+
+        const result = await service.login(loginDto);
+
+        expect(result.user.role).toBe(role);
+        expect(jwtService.sign).toHaveBeenCalledWith({
+          email: userFromDb.email,
+          sub: userFromDb.id,
+          role: role,
+        });
+
+        bcryptCompare.mockRestore();
+      }
+    });
+
+    it('should ensure password is not exposed in login response', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      const userFromDb = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+        password: 'hashedPassword',
+        role: UserRole.FAMILY,
+        phone: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockUsersService.findByEmail = jest.fn().mockResolvedValue(userFromDb);
+      const bcryptCompare = jest.spyOn(require('bcrypt'), 'compare').mockResolvedValue(true);
+      mockJwtService.sign.mockReturnValue('token');
+
+      const result = await service.login(loginDto);
+
+      expect(result.user.password).toBeUndefined();
+
+      bcryptCompare.mockRestore();
     });
   });
 });
