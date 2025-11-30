@@ -41,4 +41,14 @@ export class AuthService {
 
     return new AuthResponseDto(accessToken, userEntity);
   }
+
+  async getProfile(userId: string): Promise<UserEntity> {
+    const user = await this.usersService.findOne(userId);
+    
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return user;
+  }
 }

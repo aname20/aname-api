@@ -13,6 +13,7 @@ describe('AuthController', () => {
   const mockAuthService = {
     signup: jest.fn(),
     login: jest.fn(),
+    getProfile: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -91,6 +92,34 @@ describe('AuthController', () => {
       expect(service.login).toHaveBeenCalledWith(loginDto);
       expect(result).toEqual(expectedResponse);
       expect(result.user.password).toBeUndefined();
+    });
+  });
+
+  describe('getProfile', () => {
+    it('should call authService.getProfile and return UserEntity', async () => {
+      const requestUser = {
+        id: '1',
+        email: 'test@example.com',
+        role: UserRole.FAMILY,
+      };
+
+      const userEntity = new UserEntity({
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+        role: UserRole.FAMILY,
+        phone: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      mockAuthService.getProfile = jest.fn().mockResolvedValue(userEntity);
+
+      const result = await controller.getProfile(requestUser);
+
+      expect(service.getProfile).toHaveBeenCalledWith(requestUser.id);
+      expect(result).toEqual(userEntity);
+      expect(result.password).toBeUndefined();
     });
   });
 });

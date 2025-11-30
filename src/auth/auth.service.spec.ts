@@ -14,6 +14,7 @@ describe('AuthService', () => {
   const mockUsersService = {
     create: jest.fn(),
     findByEmail: jest.fn(),
+    findOne: jest.fn(),
   };
 
   const mockJwtService = {
@@ -456,6 +457,60 @@ describe('AuthService', () => {
       expect(result.user.password).toBeUndefined();
 
       bcryptCompare.mockRestore();
+    });
+  });
+
+  describe('getProfile', () => {
+    it('should return user profile by id', async () => {
+      const userId = '123';
+      const userEntity: UserEntity = {
+        id: userId,
+        email: 'test@example.com',
+        name: 'Test User',
+        role: UserRole.FAMILY,
+        phone: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockUsersService.findOne = jest.fn().mockResolvedValue(userEntity);
+
+      const result = await service.getProfile(userId);
+
+      expect(usersService.findOne).toHaveBeenCalledWith(userId);
+      expect(result).toEqual(userEntity);
+      expect(result.password).toBeUndefined();
+    });
+
+    it('should throw UnauthorizedException if user not found', async () => {
+      const userId = 'nonexistent';
+
+      mockUsersService.findOne = jest.fn().mockResolvedValue(null);
+
+      await expect(service.getProfile(userId)).rejects.toThrow('User not found');
+
+      expect(usersService.findOne).toHaveBeenCalledWith(userId);
+    });
+
+    it('should return user without password field', async () => {
+      const userId = '123';
+      const userEntity: UserEntity = {
+        id: userId,
+        email: 'test@example.com',
+        name: 'Test User',
+        role: UserRole.CAREGIVER,
+        phone: '1234567890',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockUsersService.findOne = jest.fn().mockResolvedValue(userEntity);
+
+      const result = await service.getProfile(userId);
+
+      expect(result).not.toHaveProperty('password');
+      expect(result.email).toBe('test@example.com');
+      expect(result.role).toBe(UserRole.CAREGIVER);
     });
   });
 });
