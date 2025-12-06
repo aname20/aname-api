@@ -15,5 +15,6 @@ export class UserEntity {
 
   constructor(partial: Partial<UserEntity>) {
     Object.assign(this, partial);
+    delete this.password;
   }
 }
