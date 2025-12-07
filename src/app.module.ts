@@ -8,6 +8,7 @@ import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 import { ConfigModule } from '@nestjs/config';
 
 import { PrismaService } from './prisma/prisma.service';
+import { DependentsModule } from './dependents/dependents.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PrismaService } from './prisma/prisma.service';
     PrismaModule,
     AuthModule,
     PrescriptionsModule,
+    DependentsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
