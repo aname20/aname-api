@@ -40,13 +40,20 @@ export class DependentsController {
   update(
     @Param('id') id: string,
     @Body() updateDependentDto: UpdateDependentDto,
+    @CurrentUser() user: any,
   ) {
-    return this.dependentsService.update(id, updateDependentDto);
+    const userId = user.sub || user.id;
+    return this.dependentsService.update(id, updateDependentDto, userId);
   }
 
+
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.dependentsService.remove(id);
+  remove(
+    @Param('id') id: string,
+    @CurrentUser() user: any,
+  ) {
+    const userId = user.sub || user.id;
+    return this.dependentsService.remove(id, userId);
   }
 
   @Post(':id/caregivers')
@@ -55,16 +62,18 @@ export class DependentsController {
     @Body() addCaregiverDto: AddCaregiverDto,
     @CurrentUser() user: any,
   ) {
-    return this.dependentsService.addCaregiver(id, addCaregiverDto.email);
+    const requesterId = user.sub || user.id;
+    return this.dependentsService.addCaregiver(id, addCaregiverDto.email, requesterId);
   }
 
   @Delete(':id/caregivers/:caregiverId')
   removeCaregiver(
-    @Param('id') id: string,
-    @Param('caregiverId') caregiverId: string,
+    @Param('id') dependentId: string,
+    @Param('caregiverId') caregiverIdToRemove: string,
     @CurrentUser() user: any,
   ) {
-    return this.dependentsService.removeCaregiver(id, caregiverId);
+    const requesterId = user.sub || user.id;
+    return this.dependentsService.removeCaregiver(dependentId, caregiverIdToRemove, requesterId);
   }
 
   @Get(':id/caregivers')

@@ -10,30 +10,27 @@ export class DependentsService {
   /**
    * Cria um dependente e vincula automaticamente ao usuário que criou (como Cuidador)
    */
-  async create(createDependentDto: CreateDependentDto, userId: string) {
+  async create(data: CreateDependentDto, userId: string) {
     return await this.prisma.dependent.create({
       data: {
-        ...createDependentDto,
-        caregivers: {
+        ...data,
+        familyMembers: {
           create: {
-            caregiverId: userId,
+            familyId: userId,
           },
         },
       },
-      include: {
-        caregivers: true,
-      },
+      include: { familyMembers: true },
     });
   }
 
   async findAll(userId: string) {
     return await this.prisma.dependent.findMany({
       where: {
-        caregivers: {
-          some: {
-            caregiverId: userId,
-          },
-        },
+        OR: [
+          { caregivers: { some: { caregiverId: userId } } },
+          { familyMembers: { some: { familyId: userId } } },
+        ],
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -57,14 +54,41 @@ export class DependentsService {
     });
   }
 
-  async update(id: string, updateDependentDto: UpdateDependentDto) {
+  async update(id: string, data: UpdateDependentDto, userId: string) {
+    const hasPermission = await this.prisma.dependent.findFirst({
+      where: {
+        id,
+        OR: [
+          { familyMembers: { some: { familyId: userId } } },
+          { caregivers: { some: { caregiverId: userId } } }
+        ]
+      }
+    });
+
+    if (!hasPermission) {
+      throw new Error('Acesso negado: Você não tem permissão para editar este dependente.');
+    }
+
     return await this.prisma.dependent.update({
       where: { id },
-      data: updateDependentDto,
+      data,
     });
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId: string) {
+    const isFamily = await this.prisma.dependentFamily.findUnique({
+      where: {
+        familyId_dependentId: {
+          familyId: userId,
+          dependentId: id,
+        }
+      }
+    });
+
+    if (!isFamily) {
+      throw new Error('Acesso negado: Apenas familiares podem excluir dependentes.');
+    }
+
     return await this.prisma.dependent.delete({
       where: { id },
     });
@@ -73,7 +97,19 @@ export class DependentsService {
   /**
    * Adiciona um novo cuidador pelo EMAIL
    */
-  async addCaregiver(dependentId: string, email: string) {
+  async addCaregiver(dependentId: string, email: string, requesterId: string) {
+    const isRequesterFamily = await this.prisma.dependentFamily.findUnique({
+      where: {
+        familyId_dependentId: {
+          familyId: requesterId,
+          dependentId,
+        },
+      },
+    });
+
+    if (!isRequesterFamily) {
+      throw new Error('Permissão negada: Apenas familiares podem adicionar cuidadores.');
+    }
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -81,7 +117,6 @@ export class DependentsService {
     if (!user) {
       throw new Error('Usuário não encontrado com este email.');
     }
-
     const existingLink = await this.prisma.dependentCaregiver.findUnique({
       where: {
         caregiverId_dependentId: {
@@ -101,7 +136,9 @@ export class DependentsService {
         caregiverId: user.id,
       },
       include: {
-        caregiver: true,
+        caregiver: {
+          select: { id: true, name: true, email: true },
+        },
       },
     });
   }
@@ -109,12 +146,24 @@ export class DependentsService {
   /**
    * Remove um cuidador específico
    */
-  async removeCaregiver(dependentId: string, caregiverId: string) {
+  async removeCaregiver(dependentId: string, caregiverIdToRemove: string, requesterId: string) {
+    const isRequesterFamily = await this.prisma.dependentFamily.findUnique({
+      where: {
+        familyId_dependentId: {
+          familyId: requesterId,
+          dependentId,
+        },
+      },
+    });
+
+    if (!isRequesterFamily) {
+      throw new Error('Permissão negada: Apenas familiares podem remover cuidadores.');
+    }
     try {
       return await this.prisma.dependentCaregiver.delete({
         where: {
           caregiverId_dependentId: {
-            caregiverId,
+            caregiverId: caregiverIdToRemove,
             dependentId,
           },
         },
