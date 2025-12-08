@@ -5,13 +5,25 @@ import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
+import { ConfigModule } from '@nestjs/config';
 
 import { PrismaService } from './prisma/prisma.service';
+import { DependentsModule } from './dependents/dependents.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
-  imports: [UsersModule, PrismaModule, AuthModule],
-  imports: [UsersModule, PrismaModule, PrescriptionsModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    UsersModule,
+    PrismaModule,
+    AuthModule,
+    PrescriptionsModule,
+    DependentsModule,
+    EventsModule,
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
-export class AppModule {}
+export class AppModule { }
