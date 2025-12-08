@@ -8,18 +8,18 @@ generator client {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  name      String
-  email     String   @unique
-  phone     String?
-  password  String
-  role      UserRole
-  
+  id       String   @id @default(uuid())
+  name     String
+  email    String   @unique
+  phone    String?
+  password String
+  role     UserRole
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   medicationLogs MedicationLog[]
-  
+
   caregiverDependents DependentCaregiver[]
   familyDependents    DependentFamily[]
 
@@ -32,11 +32,11 @@ enum UserRole {
 }
 
 model Dependent {
-  id                String                @id @default(uuid())
-  name              String
-  age               Int
-  susCode           String?
-  
+  id      String  @id @default(uuid())
+  name    String
+  age     Int
+  susCode String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -53,9 +53,9 @@ model Dependent {
 }
 
 model DependentCaregiver {
-  caregiverId  String
-  dependentId  String
-  
+  caregiverId String
+  dependentId String
+
   createdAt DateTime @default(now())
 
   caregiver User      @relation(fields: [caregiverId], references: [id])
@@ -66,9 +66,9 @@ model DependentCaregiver {
 }
 
 model DependentFamily {
-  familyId     String
-  dependentId  String
-  
+  familyId    String
+  dependentId String
+
   createdAt DateTime @default(now())
 
   family    User      @relation(fields: [familyId], references: [id])
@@ -79,9 +79,9 @@ model DependentFamily {
 }
 
 model HealthCondition {
-  id    Int    @id @default(autoincrement())
-  name  String
-  
+  id   Int    @id @default(autoincrement())
+  name String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -93,10 +93,10 @@ model HealthCondition {
 model DependentCondition {
   dependentId String
   conditionId Int
-  
+
   createdAt DateTime @default(now())
 
-  dependent Dependent @relation(fields: [dependentId], references: [id])
+  dependent Dependent       @relation(fields: [dependentId], references: [id])
   condition HealthCondition @relation(fields: [conditionId], references: [id])
 
   @@id([dependentId, conditionId])
@@ -104,9 +104,9 @@ model DependentCondition {
 }
 
 model Allergy {
-  id    Int    @id @default(autoincrement())
-  name  String
-  
+  id   Int    @id @default(autoincrement())
+  name String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -119,7 +119,7 @@ model DependentAllergy {
   dependentId String
   allergyId   Int
   notes       String?
-  
+
   createdAt DateTime @default(now())
 
   dependent Dependent @relation(fields: [dependentId], references: [id])
@@ -130,12 +130,12 @@ model DependentAllergy {
 }
 
 model EmergencyContact {
-  id          Int        @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
   phone       String
-  kinship String?
+  kinship     String?
   dependentId String
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -145,10 +145,10 @@ model EmergencyContact {
 }
 
 model Medication {
-  id          Int   @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
   description String?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -158,25 +158,27 @@ model Medication {
 }
 
 model Prescription {
-  id            Int       @id @default(autoincrement())
-  dependentId   String
-  medicationId  Int
-  dosage        String?
-  doctorName    String?
-  doctorCrm     String?
-  notes         String?
-  startDate     DateTime
-  endDate       DateTime?
-  type          PrescriptionType
-  
+  id           Int              @id @default(autoincrement())
+  dependentId  String
+  medicationId Int
+  dosage       String?
+  doctorName   String?
+  doctorCrm    String?
+  notes        String?
+  startDate    DateTime
+  endDate      DateTime?
+  type         PrescriptionType
+
+  isDeleted Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  dependent Dependent   @relation(fields: [dependentId], references: [id])
+  dependent  Dependent  @relation(fields: [dependentId], references: [id])
   medication Medication @relation(fields: [medicationId], references: [id])
 
-  schedules       PrescriptionSchedule[]
-  medicationLogs  MedicationLog[]
+  schedules      PrescriptionSchedule[]
+  medicationLogs MedicationLog[]
 
   @@map("prescriptions")
 }
@@ -187,26 +189,26 @@ enum PrescriptionType {
 }
 
 model PrescriptionSchedule {
-  id             Int       @id @default(autoincrement())
+  id             Int    @id @default(autoincrement())
   prescriptionId Int
-  time           String 
-  
+  time           String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   prescription Prescription @relation(fields: [prescriptionId], references: [id])
 
   @@map("prescription_schedules")
 }
 
 model MedicationLog {
-  id             Int       @id @default(autoincrement())
+  id             Int                 @id @default(autoincrement())
   prescriptionId Int
   caregiverId    String
   takenAt        DateTime
   status         MedicationLogStatus
   notes          String?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -223,28 +225,28 @@ enum MedicationLogStatus {
 }
 
 model Doctor {
-  id          Int    @id @default(autoincrement())
-  name        String
-  specialty   String
-  
+  id        Int    @id @default(autoincrement())
+  name      String
+  specialty String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  events      Event[]
+  events Event[]
 
   @@map("doctors")
 }
 
 model Event {
-  id           Int      @id @default(autoincrement())
-  title        String
-  description  String?
-  date         DateTime
-  status       EventStatus @default(SCHEDULED)
-  location     String?
-  dependentId  String
-  doctorId     Int?
-  
+  id          Int         @id @default(autoincrement())
+  title       String
+  description String?
+  date        DateTime
+  status      EventStatus @default(SCHEDULED)
+  location    String?
+  dependentId String
+  doctorId    Int?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -261,12 +263,12 @@ enum EventStatus {
 }
 
 model Document {
-  id          Int      @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   dependentId String
   type        DocumentType
   fileUrl     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   dependent Dependent @relation(fields: [dependentId], references: [id])
 
