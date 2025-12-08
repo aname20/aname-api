@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 
 import { PrismaService } from './prisma/prisma.service';
 import { DependentsModule } from './dependents/dependents.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -20,8 +21,9 @@ import { DependentsModule } from './dependents/dependents.module';
     AuthModule,
     PrescriptionsModule,
     DependentsModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
-export class AppModule {}
+export class AppModule { }
