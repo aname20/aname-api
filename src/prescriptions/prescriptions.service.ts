@@ -36,7 +36,7 @@ export class PrescriptionsService {
   async remove(id: number) {
     const prescription = await this.find(id);
 
-    return this.prisma.prescription.update({
+    await this.prisma.prescription.update({
       data: {
         isDeleted: true,
       },
@@ -44,6 +44,8 @@ export class PrescriptionsService {
         id: prescription.id,
       },
     });
+
+    return true;
   }
 
   async find(id: number) {
@@ -55,6 +57,7 @@ export class PrescriptionsService {
       include: {
         medication: true,
         dependent: true,
+        schedules: { orderBy: { time: 'asc' } },
       },
     });
 
