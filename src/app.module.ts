@@ -8,8 +8,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 
 import { DependentsModule } from './dependents/dependents.module';
+import { DocumentsModule } from './documents/documents.module';
 import { EventsModule } from './events/events.module';
 import { PrismaService } from './prisma/prisma.service';
+import { StorageModule } from './storages/storage.module';
 
 @Module({
   imports: [
@@ -21,7 +23,9 @@ import { PrismaService } from './prisma/prisma.service';
     AuthModule,
     PrescriptionsModule,
     DependentsModule,
+    DocumentsModule,
     EventsModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

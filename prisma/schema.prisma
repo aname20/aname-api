@@ -266,10 +266,14 @@ enum EventStatus {
 model Document {
   id          Int          @id @default(autoincrement())
   dependentId String
+  title       String
   type        DocumentType
+  date        DateTime
   fileUrl     String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  comments    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   dependent Dependent @relation(fields: [dependentId], references: [id])
 
