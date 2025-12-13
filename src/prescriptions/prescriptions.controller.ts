@@ -1,15 +1,18 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
+  Controller,
+  Delete,
+  Get,
   Param,
-  Query,
   ParseIntPipe,
+  Post,
+  Put,
+  Query,
 } from '@nestjs/common';
-import { PrescriptionsService } from './prescriptions.service';
-import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { CreateMedicationLogDto } from './dto/create-medication-log.dto';
+import { CreatePrescriptionDto } from './dto/create-prescription.dto';
+import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
+import { PrescriptionsService } from './prescriptions.service';
 
 @Controller('prescriptions')
 export class PrescriptionsController {
@@ -18,6 +21,29 @@ export class PrescriptionsController {
   @Post()
   create(@Body() dto: CreatePrescriptionDto) {
     return this.prescriptionsService.create(dto);
+  }
+
+  @Get(':id')
+  find(@Param('id', ParseIntPipe) id: number) {
+    return this.prescriptionsService.find(id);
+  }
+
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.prescriptionsService.remove(id);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdatePrescriptionDto,
+  ) {
+    const options = {
+      filter: { id },
+      data: dto,
+    };
+
+    return this.prescriptionsService.update(options);
   }
 
   @Get()
