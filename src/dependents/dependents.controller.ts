@@ -1,6 +1,13 @@
-import { 
-  Controller, Get, Post, Body, Patch, Param, Delete, 
-  UsePipes, UseGuards
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UsePipes,
+  UseGuards,
 } from '@nestjs/common';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { DependentsService } from './dependents.service';
@@ -46,12 +53,8 @@ export class DependentsController {
     return this.dependentsService.update(id, updateDependentDto, userId);
   }
 
-
   @Delete(':id')
-  remove(
-    @Param('id') id: string,
-    @CurrentUser() user: any,
-  ) {
+  remove(@Param('id') id: string, @CurrentUser() user: any) {
     const userId = user.sub || user.id;
     return this.dependentsService.remove(id, userId);
   }
@@ -63,7 +66,11 @@ export class DependentsController {
     @CurrentUser() user: any,
   ) {
     const requesterId = user.sub || user.id;
-    return this.dependentsService.addCaregiver(id, addCaregiverDto.email, requesterId);
+    return this.dependentsService.addCaregiver(
+      id,
+      addCaregiverDto.email,
+      requesterId,
+    );
   }
 
   @Delete(':id/caregivers/:caregiverId')
@@ -73,7 +80,11 @@ export class DependentsController {
     @CurrentUser() user: any,
   ) {
     const requesterId = user.sub || user.id;
-    return this.dependentsService.removeCaregiver(dependentId, caregiverIdToRemove, requesterId);
+    return this.dependentsService.removeCaregiver(
+      dependentId,
+      caregiverIdToRemove,
+      requesterId,
+    );
   }
 
   @Get(':id/caregivers')
