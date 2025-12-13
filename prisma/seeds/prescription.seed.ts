@@ -1,8 +1,8 @@
 import {
-    MedicationLogStatus,
-    PrescriptionType,
-    PrismaClient,
-    UserRole,
+  MedicationLogStatus,
+  PrescriptionType,
+  PrismaClient,
+  UserRole,
 } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
