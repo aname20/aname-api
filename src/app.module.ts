@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
-import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from './prisma/prisma.module';
+import { UsersModule } from './users/users.module';
 
-import { PrismaService } from './prisma/prisma.service';
 import { DependentsModule } from './dependents/dependents.module';
 import { EventsModule } from './events/events.module';
+import { PrismaService } from './prisma/prisma.service';
 
 @Module({
   imports: [
@@ -26,4 +26,4 @@ import { EventsModule } from './events/events.module';
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
-export class AppModule { }
+export class AppModule {}
