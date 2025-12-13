@@ -26,4 +26,4 @@ import { EventsModule } from './events/events.module';
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
-export class AppModule { }
+export class AppModule {}

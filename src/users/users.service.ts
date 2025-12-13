@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from './entities/user.entity';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -28,8 +29,18 @@ export class UsersService {
     return new UserEntity(user);
   }
 
-  async findAll() {
-    const users = await this.prisma.user.findMany();
+  async findAll(filter: { role?: UserRole } = {}) {
+    const whereCondition = {};
+
+    if (filter.role) {
+      whereCondition['role'] = filter.role;
+    }
+
+    const users = await this.prisma.user.findMany({
+      where: whereCondition,
+      orderBy: { name: 'asc' },
+    });
+
     return users.map((user) => new UserEntity(user));
   }
 
