@@ -1,7 +1,7 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
@@ -17,11 +17,8 @@ export class DocumentsService {
     const document = await this.prisma.document.create({
       data: {
         dependentId: createDocumentDto.dependentId,
-        title: createDocumentDto.title,
         type: createDocumentDto.type,
-        date: createDocumentDto.date,
         fileUrl: createDocumentDto.fileUrl,
-        comments: createDocumentDto.comments,
       },
       include: {
         dependent: {
@@ -49,7 +46,6 @@ export class DocumentsService {
           select: { id: true, name: true },
         },
       },
-      orderBy: { date: 'desc' },
     });
 
     return documents.map((doc) => this.formatDocumentResponse(doc));
