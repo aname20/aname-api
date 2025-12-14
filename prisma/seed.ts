@@ -1,12 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 import { prescriptionSeed } from './seeds/prescription.seed';
 import { medicationSeed } from './seeds/medication.seed';
+import { eventSeed } from './seeds/event.seed';
 
-type SeedName = 'prescription' | 'medication';
+type SeedName = 'prescription' | 'medication' | 'event';
 
 const seedMap: Record<SeedName, (prisma: PrismaClient) => Promise<void>> = {
   prescription: prescriptionSeed,
   medication: medicationSeed,
+  event: eventSeed,
 };
 
 async function main() {
