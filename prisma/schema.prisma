@@ -4,7 +4,7 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-arm64-openssl-3.0.x"]
 }
 
@@ -245,6 +245,7 @@ model Event {
   date        DateTime
   status      EventStatus @default(SCHEDULED)
   location    String?
+  diagnosis   String?
   dependentId String
   doctorId    Int?
 

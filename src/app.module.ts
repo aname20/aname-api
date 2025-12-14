@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { DependentsModule } from './dependents/dependents.module';
 import { DocumentsModule } from './documents/documents.module';
 import { EventsModule } from './events/events.module';
+import { DoctorsModule } from './doctors/doctors.module';
 import { PrismaService } from './prisma/prisma.service';
 import { StorageModule } from './storages/storage.module';
 
@@ -25,6 +26,7 @@ import { StorageModule } from './storages/storage.module';
     DependentsModule,
     DocumentsModule,
     EventsModule,
+    DoctorsModule,
     StorageModule,
   ],
   controllers: [AppController],

@@ -8,6 +8,7 @@ const CreateEventSchema = z.object({
     date: z.string().datetime().or(z.date()).transform((val) => new Date(val)),
     status: z.nativeEnum(EventStatus).optional().default(EventStatus.SCHEDULED),
     location: z.string().optional(),
+    diagnosis: z.string().optional(),
     dependentId: z.string().uuid('ID do dependente inválido'),
     doctorId: z.number().int().optional(),
 });
@@ -18,6 +19,7 @@ export class CreateEventDto extends createZodDto(CreateEventSchema) {
     date: Date;
     status: EventStatus;
     location?: string;
+    diagnosis?: string;
     dependentId: string;
     doctorId?: number;
 }
