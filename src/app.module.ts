@@ -12,6 +12,7 @@ import { DocumentsModule } from './documents/documents.module';
 import { EventsModule } from './events/events.module';
 import { PrismaService } from './prisma/prisma.service';
 import { StorageModule } from './storages/storage.module';
+import { DoctorsModule } from './doctors/doctors.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { StorageModule } from './storages/storage.module';
     DocumentsModule,
     EventsModule,
     StorageModule,
+    DoctorsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
