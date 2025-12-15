@@ -18,12 +18,14 @@ RUN npx prisma generate
 
 # Build the NestJS application
 RUN echo "=== Starting NestJS build ===" && \
-    npm run build && \
+    npm run build 2>&1 | tee build.log && \
+    echo "=== Build log ===" && \
+    cat build.log && \
     echo "=== Build completed ===" && \
     echo "=== Checking dist directory ===" && \
-    ls -la dist/ && \
-    echo "=== Checking dist contents recursively ===" && \
-    find dist -type f | head -20
+    ls -laR dist/ && \
+    echo "=== Looking for JS files ===" && \
+    find dist -name "*.js" | head -20 || echo "No JS files found!"
 
 # Torna o script executável
 RUN chmod +x start.sh
