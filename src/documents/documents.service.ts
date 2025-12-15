@@ -17,8 +17,11 @@ export class DocumentsService {
     const document = await this.prisma.document.create({
       data: {
         dependentId: createDocumentDto.dependentId,
+        title: createDocumentDto.title,
         type: createDocumentDto.type,
+        date: createDocumentDto.date,
         fileUrl: createDocumentDto.fileUrl,
+        comments: createDocumentDto.comments,
       },
       include: {
         dependent: {
