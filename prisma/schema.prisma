@@ -225,19 +225,6 @@ enum MedicationLogStatus {
   REFUSED
 }
 
-model Doctor {
-  id        Int    @id @default(autoincrement())
-  name      String
-  specialty String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  events Event[]
-
-  @@map("doctors")
-}
-
 model Event {
   id          Int         @id @default(autoincrement())
   title       String
@@ -246,13 +233,13 @@ model Event {
   status      EventStatus @default(SCHEDULED)
   location    String?
   dependentId String
-  doctorId    Int?
+  doctorName  String?
+  doctorCrm   String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   dependent Dependent @relation(fields: [dependentId], references: [id])
-  doctor    Doctor?   @relation(fields: [doctorId], references: [id])
 
   @@map("events")
 }
