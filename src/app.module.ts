@@ -8,7 +8,6 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 
 import { DependentsModule } from './dependents/dependents.module';
-import { DoctorsModule } from './doctors/doctors.module';
 import { DocumentsModule } from './documents/documents.module';
 import { EventsModule } from './events/events.module';
 import { MedicationsModule } from './medications/medications.module';
