@@ -44,21 +44,41 @@ export class DependentsService {
       include: {
         conditions: { include: { condition: true } },
         allergies: { include: { allergy: true } },
+        emergencyContacts: true,
       },
       orderBy: { createdAt: 'desc' },
     });
 
-    return dependents.map((dependent) => ({
-      id: dependent.id,
-      name: dependent.name,
-      age: dependent.age,
-      susCode: dependent.susCode,
-      conditions: dependent.conditions.map(
-        (relation) => relation.condition.name,
-      ),
-      allergies: dependent.allergies.map((relation) => relation.allergy.name),
-      createdAt: dependent.createdAt,
-    }));
+    if (dependents.length === 0) {
+      return [];
+    }
+
+    return dependents.map((dependent) => {
+      return {
+        id: dependent.id,
+        name: dependent.name,
+        age: dependent.age,
+        susCode: dependent.susCode,
+        conditions: dependent.conditions.map(
+          (relation) => relation.condition.name,
+        ),
+        allergies: dependent.allergies.map((relation) => relation.allergy.name),
+        createdAt: dependent.createdAt,
+        emergencyContact: this.getEmergencyContact(dependent),
+      };
+    });
+  }
+
+  private getEmergencyContact(dependent: any) {
+    const emergencyContacts = dependent?.emergencyContacts || [];
+
+    if (emergencyContacts.length === 0) {
+      return null;
+    }
+
+    const firstEmergencyContact = emergencyContacts[0];
+
+    return firstEmergencyContact.phone;
   }
 
   async findOne(id: string) {
