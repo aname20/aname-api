@@ -12,6 +12,7 @@ const UpdateDependentSchema = z.object({
   name: z.string().min(1).optional(),
   age: z.number().int().min(0).optional(),
   susCode: z.string().optional(),
+  avatar: z.string().url('URL do avatar inválida').optional(),
   conditions: z.array(z.string().min(1)).optional(),
   allergies: z.array(z.string().min(1)).optional(),
   caregiverIds: z.array(z.string().uuid()).optional(),

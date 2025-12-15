@@ -60,6 +60,7 @@ describe('AuthService', () => {
         name: 'Test User',
         role: UserRole.FAMILY,
         phone: null,
+        avatar: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -114,6 +115,7 @@ describe('AuthService', () => {
           name: createUserDto.name,
           role: role,
           phone: null,
+          avatar: null,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -144,6 +146,7 @@ describe('AuthService', () => {
         id: '1',
         ...createUserDto,
         phone: '1234567890',
+        avatar: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -168,6 +171,7 @@ describe('AuthService', () => {
         id: '1',
         ...createUserDto,
         phone: null,
+        avatar: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -193,7 +197,9 @@ describe('AuthService', () => {
       conflictError.name = 'ConflictException';
       mockUsersService.create.mockRejectedValue(conflictError);
 
-      await expect(service.signup(createUserDto)).rejects.toThrow(conflictError);
+      await expect(service.signup(createUserDto)).rejects.toThrow(
+        conflictError,
+      );
       expect(usersService.create).toHaveBeenCalledWith(createUserDto);
     });
 
@@ -211,6 +217,7 @@ describe('AuthService', () => {
         name: createUserDto.name,
         role: UserRole.CAREGIVER,
         phone: null,
+        avatar: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -238,6 +245,7 @@ describe('AuthService', () => {
         name: 'Test User',
         role: UserRole.FAMILY,
         phone: null,
+        avatar: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -264,6 +272,7 @@ describe('AuthService', () => {
         name: 'Test User',
         role: UserRole.FAMILY,
         phone: null,
+        avatar: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -291,6 +300,7 @@ describe('AuthService', () => {
         name: 'Test User',
         role: UserRole.FAMILY,
         phone: null,
+        avatar: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -319,6 +329,7 @@ describe('AuthService', () => {
         password: 'hashedPassword',
         role: UserRole.FAMILY,
         phone: null,
+        avatar: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -329,18 +340,24 @@ describe('AuthService', () => {
         name: 'Test User',
         role: UserRole.FAMILY,
         phone: null,
+        avatar: null,
         createdAt: userFromDb.createdAt,
         updatedAt: userFromDb.updatedAt,
       };
 
       mockUsersService.findByEmail = jest.fn().mockResolvedValue(userFromDb);
-      const bcryptCompare = jest.spyOn(require('bcrypt'), 'compare').mockResolvedValue(true);
+      const bcryptCompare = jest
+        .spyOn(require('bcrypt'), 'compare')
+        .mockResolvedValue(true);
       mockJwtService.sign.mockReturnValue('jwt_token');
 
       const result = await service.login(loginDto);
 
       expect(usersService.findByEmail).toHaveBeenCalledWith(loginDto.email);
-      expect(bcryptCompare).toHaveBeenCalledWith(loginDto.password, userFromDb.password);
+      expect(bcryptCompare).toHaveBeenCalledWith(
+        loginDto.password,
+        userFromDb.password,
+      );
       expect(jwtService.sign).toHaveBeenCalledWith({
         email: userEntity.email,
         sub: userEntity.id,
@@ -361,7 +378,9 @@ describe('AuthService', () => {
 
       mockUsersService.findByEmail = jest.fn().mockResolvedValue(null);
 
-      await expect(service.login(loginDto)).rejects.toThrow('Invalid credentials');
+      await expect(service.login(loginDto)).rejects.toThrow(
+        'Invalid credentials',
+      );
 
       expect(usersService.findByEmail).toHaveBeenCalledWith(loginDto.email);
     });
@@ -379,17 +398,25 @@ describe('AuthService', () => {
         password: 'hashedPassword',
         role: UserRole.FAMILY,
         phone: null,
+        avatar: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
       mockUsersService.findByEmail = jest.fn().mockResolvedValue(userFromDb);
-      const bcryptCompare = jest.spyOn(require('bcrypt'), 'compare').mockResolvedValue(false);
+      const bcryptCompare = jest
+        .spyOn(require('bcrypt'), 'compare')
+        .mockResolvedValue(false);
 
-      await expect(service.login(loginDto)).rejects.toThrow('Invalid credentials');
+      await expect(service.login(loginDto)).rejects.toThrow(
+        'Invalid credentials',
+      );
 
       expect(usersService.findByEmail).toHaveBeenCalledWith(loginDto.email);
-      expect(bcryptCompare).toHaveBeenCalledWith(loginDto.password, userFromDb.password);
+      expect(bcryptCompare).toHaveBeenCalledWith(
+        loginDto.password,
+        userFromDb.password,
+      );
 
       bcryptCompare.mockRestore();
     });
@@ -415,7 +442,9 @@ describe('AuthService', () => {
         };
 
         mockUsersService.findByEmail = jest.fn().mockResolvedValue(userFromDb);
-        const bcryptCompare = jest.spyOn(require('bcrypt'), 'compare').mockResolvedValue(true);
+        const bcryptCompare = jest
+          .spyOn(require('bcrypt'), 'compare')
+          .mockResolvedValue(true);
         mockJwtService.sign.mockReturnValue('token');
 
         const result = await service.login(loginDto);
@@ -444,12 +473,15 @@ describe('AuthService', () => {
         password: 'hashedPassword',
         role: UserRole.FAMILY,
         phone: null,
+        avatar: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
       mockUsersService.findByEmail = jest.fn().mockResolvedValue(userFromDb);
-      const bcryptCompare = jest.spyOn(require('bcrypt'), 'compare').mockResolvedValue(true);
+      const bcryptCompare = jest
+        .spyOn(require('bcrypt'), 'compare')
+        .mockResolvedValue(true);
       mockJwtService.sign.mockReturnValue('token');
 
       const result = await service.login(loginDto);
@@ -469,6 +501,7 @@ describe('AuthService', () => {
         name: 'Test User',
         role: UserRole.FAMILY,
         phone: null,
+        avatar: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -487,7 +520,9 @@ describe('AuthService', () => {
 
       mockUsersService.findOne = jest.fn().mockResolvedValue(null);
 
-      await expect(service.getProfile(userId)).rejects.toThrow('User not found');
+      await expect(service.getProfile(userId)).rejects.toThrow(
+        'User not found',
+      );
 
       expect(usersService.findOne).toHaveBeenCalledWith(userId);
     });
@@ -500,6 +535,7 @@ describe('AuthService', () => {
         name: 'Test User',
         role: UserRole.CAREGIVER,
         phone: '1234567890',
+        avatar: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };

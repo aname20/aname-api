@@ -28,7 +28,6 @@ import { StorageModule } from './storages/storage.module';
     DocumentsModule,
     EventsModule,
     StorageModule,
-    DoctorsModule,
     MedicationsModule,
   ],
   controllers: [AppController],

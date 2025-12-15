@@ -195,7 +195,13 @@ export class DependentsService {
         caregivers: {
           include: {
             caregiver: {
-              select: { id: true, name: true, email: true, phone: true },
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                avatar: true,
+              },
             },
           },
         },
@@ -405,14 +411,26 @@ export class DependentsService {
         caregivers: {
           include: {
             caregiver: {
-              select: { id: true, name: true, email: true, phone: true },
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                avatar: true,
+              },
             },
           },
         },
         familyMembers: {
           include: {
             family: {
-              select: { id: true, name: true, email: true, phone: true },
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                avatar: true,
+              },
             },
           },
         },
@@ -437,6 +455,7 @@ export class DependentsService {
       name: dependent.name,
       age: dependent.age,
       susCode: dependent.susCode,
+      avatar: dependent.avatar,
       createdAt: dependent.createdAt,
       updatedAt: dependent.updatedAt,
 
@@ -453,6 +472,7 @@ export class DependentsService {
         name: relation.caregiver.name,
         email: relation.caregiver.email,
         phone: relation.caregiver.phone,
+        avatar: relation.caregiver.avatar,
       })),
 
       familyMembers: dependent.familyMembers.map((relation: any) => ({
@@ -460,6 +480,7 @@ export class DependentsService {
         name: relation.family.name,
         email: relation.family.email,
         phone: relation.family.phone,
+        avatar: relation.family.avatar,
       })),
 
       emergencyContacts: dependent.emergencyContacts.map((contact: any) => ({

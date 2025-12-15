@@ -7,6 +7,7 @@ export class UserEntity {
   email: string;
   phone: string | null;
   role: UserRole;
+  avatar: string | null;
   createdAt: Date;
   updatedAt: Date;
 
