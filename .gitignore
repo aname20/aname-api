@@ -40,3 +40,6 @@ Thumbs.db
 /prisma/*.db
 /prisma/*.db-journal
 /generated/prisma
+
+.history
+/.hitory
