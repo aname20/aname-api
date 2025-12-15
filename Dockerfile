@@ -19,6 +19,9 @@ RUN npx prisma generate
 # Build the NestJS application
 RUN npm run build
 
+# List dist directory to verify build output
+RUN echo "Checking dist directory..." && ls -la dist/ || echo "dist/ not found!"
+
 # Remove dev dependencies after build
 RUN npm prune --production
 
