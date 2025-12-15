@@ -17,13 +17,13 @@ COPY . .
 RUN npx prisma generate
 
 # Build the NestJS application
-RUN npm run build
-
-# List dist directory to verify build output
-RUN echo "Checking dist directory..." && ls -la dist/ || echo "dist/ not found!"
-
-# Remove dev dependencies after build
-RUN npm prune --production
+RUN echo "=== Starting NestJS build ===" && \
+    npm run build && \
+    echo "=== Build completed ===" && \
+    echo "=== Checking dist directory ===" && \
+    ls -la dist/ && \
+    echo "=== Checking dist contents recursively ===" && \
+    find dist -type f | head -20
 
 # Torna o script executável
 RUN chmod +x start.sh
