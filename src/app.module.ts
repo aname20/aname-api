@@ -8,11 +8,12 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 
 import { DependentsModule } from './dependents/dependents.module';
+import { DoctorsModule } from './doctors/doctors.module';
 import { DocumentsModule } from './documents/documents.module';
 import { EventsModule } from './events/events.module';
+import { MedicationsModule } from './medications/medications.module';
 import { PrismaService } from './prisma/prisma.service';
 import { StorageModule } from './storages/storage.module';
-import { DoctorsModule } from './doctors/doctors.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { DoctorsModule } from './doctors/doctors.module';
     EventsModule,
     StorageModule,
     DoctorsModule,
+    MedicationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
