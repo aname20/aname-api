@@ -9,6 +9,7 @@ export const CreateUserSchema = z.object({
   phone: z.string().optional(),
   password: z.string().min(6),
   role: z.nativeEnum(UserRole),
+  avatar: z.string().url('URL do avatar inválida').optional(),
 });
 
 export class CreateUserDto extends createZodDto(CreateUserSchema) {}
