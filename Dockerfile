@@ -16,16 +16,15 @@ COPY . .
 # Gerar Prisma Client para o ambiente do container
 RUN npx prisma generate
 
-# Build the NestJS application
+# Build the NestJS application with verbose output
 RUN echo "=== Starting NestJS build ===" && \
-    npm run build 2>&1 | tee build.log && \
-    echo "=== Build log ===" && \
-    cat build.log && \
-    echo "=== Build completed ===" && \
-    echo "=== Checking dist directory ===" && \
-    ls -laR dist/ && \
-    echo "=== Looking for JS files ===" && \
-    find dist -name "*.js" | head -20 || echo "No JS files found!"
+    npm run build --verbose 2>&1 && \
+    echo "=== Build command finished ===" && \
+    echo "=== Exit code: $? ===" && \
+    echo "=== Checking dist directory recursively ===" && \
+    ls -laR dist/ 2>&1 && \
+    echo "=== Looking for JavaScript files ===" && \
+    find . -name "*.js" -path "*/dist/*" 2>&1 | head -30 || echo "No JS files found in dist!"
 
 # Torna o script executável
 RUN chmod +x start.sh
