@@ -20,8 +20,11 @@ export class DocumentsService {
         date: createDocumentDto.date,
         comments: createDocumentDto.comments,
         dependentId: createDocumentDto.dependentId,
+        title: createDocumentDto.title,
         type: createDocumentDto.type,
+        date: createDocumentDto.date,
         fileUrl: createDocumentDto.fileUrl,
+        comments: createDocumentDto.comments,
       },
       include: {
         dependent: {
